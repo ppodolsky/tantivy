@@ -87,16 +87,19 @@ impl From<chrono::ParseError> for QueryParserError {
     }
 }
 
-/// Recursively remove empty clause from the AST
+/// Recursively remove empty clause from the AST and remove exceeded leafs if budget set
 ///
 /// Returns `None` iff the `logical_ast` ended up being empty.
-fn trim_ast(logical_ast: LogicalAST) -> Option<LogicalAST> {
+fn trim_ast(logical_ast: LogicalAST, budget: &mut i32) -> Option<LogicalAST> {
+    if *budget <= 0 {
+        return None
+    }
     match logical_ast {
         LogicalAST::Clause(children) => {
             let trimmed_children = children
                 .into_iter()
                 .flat_map(|(occur, child)| {
-                    trim_ast(child).map(|trimmed_child| (occur, trimmed_child))
+                    trim_ast(child, budget).map(|trimmed_child| (occur, trimmed_child))
                 })
                 .collect::<Vec<_>>();
             if trimmed_children.is_empty() {
@@ -105,7 +108,11 @@ fn trim_ast(logical_ast: LogicalAST) -> Option<LogicalAST> {
                 Some(LogicalAST::Clause(trimmed_children))
             }
         }
-        _ => Some(logical_ast),
+        LogicalAST::Leaf(_) => {
+            *budget -= 1;
+            Some(logical_ast)
+        },
+        _ => Some(logical_ast)
     }
 }
 
@@ -245,7 +252,12 @@ impl QueryParser {
     /// in [Issue 5](https://github.com/fulmicoton/tantivy/issues/5)
     pub fn parse_query(&self, query: &str) -> Result<Box<dyn Query>, QueryParserError> {
         let logical_ast = self.parse_query_to_logical_ast(query)?;
-        Ok(convert_to_query(logical_ast))
+        Ok(convert_to_query(trim_ast(logical_ast, &mut std::i32::MAX)))
+    }
+    /// Parse a query with fixed computational budget
+    pub fn parse_query_with_budget(&self, query: &str, mut budget: i32) -> Result<Box<dyn Query>, QueryParserError> {
+        let logical_ast = self.parse_query_to_logical_ast(query)?;
+        Ok(convert_to_query(trim_ast(logical_ast, &mut budget)))
     }
 
     /// Parse the user query into an AST.
@@ -544,12 +556,12 @@ fn convert_literal_to_query(logical_literal: LogicalLiteral) -> Box<dyn Query> {
     }
 }
 
-fn convert_to_query(logical_ast: LogicalAST) -> Box<dyn Query> {
-    match trim_ast(logical_ast) {
+fn convert_to_query(logical_ast: Option<LogicalAST>) -> Box<dyn Query> {
+    match logical_ast {
         Some(LogicalAST::Clause(trimmed_clause)) => {
             let occur_subqueries = trimmed_clause
                 .into_iter()
-                .map(|(occur, subquery)| (occur, convert_to_query(subquery)))
+                .map(|(occur, subquery)| (occur, convert_to_query(Some(subquery))))
                 .collect::<Vec<_>>();
             assert!(
                 !occur_subqueries.is_empty(),
@@ -561,7 +573,7 @@ fn convert_to_query(logical_ast: LogicalAST) -> Box<dyn Query> {
             convert_literal_to_query(*trimmed_logical_literal)
         }
         Some(LogicalAST::Boost(ast, boost)) => {
-            let query = convert_to_query(*ast);
+            let query = convert_to_query(Some(*ast));
             let boosted_query = BoostQuery::new(query, boost);
             Box::new(boosted_query)
         }
@@ -651,6 +663,16 @@ mod test {
         assert_eq!(
             format!("{:?}", query),
             "TermQuery(Term(field=11,bytes=[114, 111, 111, 116, 0, 98, 114, 97, 110, 99, 104, 0, 108, 101, 97, 102]))"
+        );
+    }
+
+    #[test]
+    pub fn test_query_parser_with_budget() {
+        let query_parser = make_query_parser();
+        let query = query_parser.parse_query_with_budget("text:deus text:ex text:machina text:failed", 3);
+        assert_eq!(
+            format!("{:?}", query),
+            "Ok(BooleanQuery { subqueries: [(Should, TermQuery(Term(field=1,bytes=[100, 101, 117, 115]))), (Should, TermQuery(Term(field=1,bytes=[101, 120]))), (Should, TermQuery(Term(field=1,bytes=[109, 97, 99, 104, 105, 110, 97])))] })"
         );
     }
 
