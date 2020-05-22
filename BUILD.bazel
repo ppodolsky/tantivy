@@ -1,0 +1,67 @@
+load("@io_bazel_rules_rust//rust:rust.bzl", "rust_library", "rust_test")
+
+package(default_visibility = ["//visibility:public"])
+
+rust_library(
+    name = "tantivy",
+    srcs = glob([
+        "src/**/*.rs",
+    ]),
+    crate_features = ["mmap"],
+    edition = "2018",
+    deps = [
+        "//nexus/tantivy/query-grammar:tantivy_query_grammar",
+        "//rules/rust:atomicwrites",
+        "//rules/rust:base64",
+        "//rules/rust:bitpacking",
+        "//rules/rust:byteorder",
+        "//rules/rust:census",
+        "//rules/rust:chrono",
+        "//rules/rust:crc32fast",
+        "//rules/rust:crossbeam",
+        "//rules/rust:downcast_rs",
+        "//rules/rust:fail",
+        "//rules/rust:failure",
+        "//rules/rust:fnv",
+        "//rules/rust:fs2",
+        "//rules/rust:futures",
+        "//rules/rust:htmlescape",
+        "//rules/rust:itertools",
+        "//rules/rust:lazy_static",
+        "//rules/rust:levenshtein_automata",
+        "//rules/rust:libc",
+        "//rules/rust:log",
+        "//rules/rust:lz4",
+        "//rules/rust:memmap",
+        "//rules/rust:murmurhash32",
+        "//rules/rust:notify",
+        "//rules/rust:num_cpus",
+        "//rules/rust:once_cell",
+        "//rules/rust:owned_read",
+        "//rules/rust:owning_ref",
+        "//rules/rust:rand",
+        "//rules/rust:rayon",
+        "//rules/rust:regex",
+        "//rules/rust:rust_stemmers",
+        "//rules/rust:serde",
+        "//rules/rust:serde_derive",
+        "//rules/rust:serde_json",
+        "//rules/rust:smallvec",
+        "//rules/rust:snap",
+        "//rules/rust:stable_deref_trait",
+        "//rules/rust:tantivy_fst",
+        "//rules/rust:tempfile",
+        "//rules/rust:uuid",
+    ],
+)
+
+rust_test(
+    name = "test",
+    crate = ":tantivy",
+    crate_features = ["mmap"],
+    edition = "2018",
+    deps = [
+        "//rules/rust:maplit",
+        "//rules/rust:matches",
+    ],
+)
