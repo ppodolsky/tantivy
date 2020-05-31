@@ -131,10 +131,10 @@ mod tests {
         let handle_a2 = watch_event_router.subscribe(inc_callback(10));
         assert_eq!(0, counter.load(Ordering::SeqCst));
         block_on(async {
-            futures::join!(
+            futures::future::join(
                 watch_event_router.broadcast(),
                 watch_event_router.broadcast()
-            )
+            ).await
         });
         assert_eq!(22, counter.load(Ordering::SeqCst));
         mem::drop(handle_a);
@@ -159,7 +159,7 @@ mod tests {
         block_on(async {
             let future1 = watch_event_router.broadcast();
             let future2 = watch_event_router.broadcast();
-            futures::join!(future1, future2)
+            futures::future::join(future1, future2).await
         });
         assert_eq!(2, counter.load(Ordering::SeqCst));
         mem::drop(handle_a);
