@@ -9,6 +9,9 @@ rust_library(
     ]),
     crate_features = ["mmap"],
     edition = "2018",
+    proc_macro_deps = [
+        "//rules/rust:serde_derive",
+    ],
     deps = [
         "//nexus/tantivy/query-grammar:tantivy_query_grammar",
         "//rules/rust:atomicwrites",
@@ -44,7 +47,6 @@ rust_library(
         "//rules/rust:regex",
         "//rules/rust:rust_stemmers",
         "//rules/rust:serde",
-        "//rules/rust:serde_derive",
         "//rules/rust:serde_json",
         "//rules/rust:smallvec",
         "//rules/rust:snap",
