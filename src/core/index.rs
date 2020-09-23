@@ -18,7 +18,7 @@ use crate::reader::IndexReader;
 use crate::reader::IndexReaderBuilder;
 use crate::schema::Field;
 use crate::schema::FieldType;
-use crate::schema::Schema;
+use crate::schema::{DocumentTrait, Schema};
 use crate::tokenizer::{TextAnalyzer, TokenizerManager};
 use crate::IndexWriter;
 use std::borrow::BorrowMut;
@@ -271,11 +271,11 @@ impl Index {
     ///
     /// # Panics
     /// If the heap size per thread is too small, panics.
-    pub fn writer_with_num_threads(
+    pub fn writer_with_num_threads<D: 'static + DocumentTrait>(
         &self,
         num_threads: usize,
         overall_heap_size_in_bytes: usize,
-    ) -> crate::Result<IndexWriter> {
+    ) -> crate::Result<IndexWriter<D>> {
         let directory_lock = self
             .directory
             .acquire_lock(&INDEX_WRITER_LOCK)
@@ -305,7 +305,7 @@ impl Index {
     /// That index writer only simply has a single thread and a heap of 5 MB.
     /// Using a single thread gives us a deterministic allocation of DocId.
     #[cfg(test)]
-    pub fn writer_for_tests(&self) -> crate::Result<IndexWriter> {
+    pub fn writer_for_tests<D: DocumentTrait>(&self) -> crate::Result<IndexWriter<D>> {
         self.writer_with_num_threads(1, 10_000_000)
     }
 
@@ -319,7 +319,7 @@ impl Index {
     /// If the lockfile already exists, returns `Error::FileAlreadyExists`.
     /// # Panics
     /// If the heap size per thread is too small, panics.
-    pub fn writer(&self, overall_heap_size_in_bytes: usize) -> crate::Result<IndexWriter> {
+    pub fn writer<D: 'static + DocumentTrait>(&self, overall_heap_size_in_bytes: usize) -> crate::Result<IndexWriter<D>> {
         let mut num_threads = num_cpus::get();
         let heap_size_in_bytes_per_thread = overall_heap_size_in_bytes / num_threads;
         if heap_size_in_bytes_per_thread < HEAP_SIZE_MIN {
@@ -398,7 +398,7 @@ impl fmt::Debug for Index {
 mod tests {
     use crate::directory::RAMDirectory;
     use crate::schema::Field;
-    use crate::schema::{Schema, INDEXED, TEXT};
+    use crate::schema::{DocumentTrait, Schema, INDEXED, TEXT};
     use crate::IndexReader;
     use crate::ReloadPolicy;
     use crate::{Directory, Index};

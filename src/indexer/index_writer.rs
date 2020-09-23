@@ -20,7 +20,7 @@ use crate::indexer::stamper::Stamper;
 use crate::indexer::MergePolicy;
 use crate::indexer::SegmentEntry;
 use crate::indexer::SegmentWriter;
-use crate::schema::Document;
+use crate::schema::DocumentTrait;
 use crate::schema::IndexRecordOption;
 use crate::schema::Term;
 use crate::Opstamp;
@@ -53,9 +53,9 @@ const PIPELINE_MAX_SIZE_IN_DOCS: usize = 10_000;
 // - all docs in the operation will happen on the same segment and continuous docids.
 // - all operations in the group are committed at the same time, making the group
 // atomic.
-type OperationGroup = SmallVec<[AddOperation; 4]>;
-type OperationSender = channel::Sender<OperationGroup>;
-type OperationReceiver = channel::Receiver<OperationGroup>;
+type OperationGroup<D> = SmallVec<[AddOperation<D>; 4]>;
+type OperationSender<D> = channel::Sender<OperationGroup<D>>;
+type OperationReceiver<D> = channel::Receiver<OperationGroup<D>>;
 
 /// `IndexWriter` is the user entry-point to add document to an index.
 ///
@@ -63,7 +63,7 @@ type OperationReceiver = channel::Receiver<OperationGroup>;
 /// indexing queue.
 /// Each indexing thread builds its own independent `Segment`, via
 /// a `SegmentWriter` object.
-pub struct IndexWriter {
+pub struct IndexWriter<D: 'static + DocumentTrait> {
     // the lock is just used to bind the
     // lifetime of the lock with that of the IndexWriter.
     _directory_lock: Option<DirectoryLock>,
@@ -74,8 +74,8 @@ pub struct IndexWriter {
 
     workers_join_handle: Vec<JoinHandle<crate::Result<()>>>,
 
-    operation_receiver: OperationReceiver,
-    operation_sender: OperationSender,
+    operation_receiver: OperationReceiver<D>,
+    operation_sender: OperationSender<D>,
 
     segment_updater: SegmentUpdater,
 
@@ -189,10 +189,10 @@ pub(crate) fn advance_deletes(
     Ok(())
 }
 
-fn index_documents(
+fn index_documents<D: DocumentTrait>(
     memory_budget: usize,
     segment: Segment,
-    grouped_document_iterator: &mut dyn Iterator<Item = OperationGroup>,
+    grouped_document_iterator: &mut dyn Iterator<Item = OperationGroup<D>>,
     segment_updater: &mut SegmentUpdater,
     mut delete_cursor: DeleteCursor,
 ) -> crate::Result<bool> {
@@ -275,7 +275,7 @@ fn apply_deletes(
     })
 }
 
-impl IndexWriter {
+impl<D: 'static + DocumentTrait> IndexWriter<D> {
     /// Create a new index writer. Attempts to acquire a lockfile.
     ///
     /// The lockfile should be deleted on drop, but it is possible
@@ -295,7 +295,7 @@ impl IndexWriter {
         num_threads: usize,
         heap_size_in_bytes_per_thread: usize,
         directory_lock: DirectoryLock,
-    ) -> crate::Result<IndexWriter> {
+    ) -> crate::Result<IndexWriter<D>> {
         if heap_size_in_bytes_per_thread < HEAP_SIZE_MIN {
             let err_msg = format!(
                 "The heap size per thread needs to be at least {}.",
@@ -307,7 +307,7 @@ impl IndexWriter {
             let err_msg = format!("The heap size per thread cannot exceed {}", HEAP_SIZE_MAX);
             return Err(TantivyError::InvalidArgument(err_msg));
         }
-        let (document_sender, document_receiver): (OperationSender, OperationReceiver) =
+        let (document_sender, document_receiver): (OperationSender<D>, OperationReceiver<D>) =
             channel::bounded(PIPELINE_MAX_SIZE_IN_DOCS);
 
         let delete_queue = DeleteQueue::new();
@@ -537,8 +537,8 @@ impl IndexWriter {
     ///
     /// Returns the former segment_ready channel.
     #[allow(unused_must_use)]
-    fn recreate_document_channel(&mut self) -> OperationReceiver {
-        let (document_sender, document_receiver): (OperationSender, OperationReceiver) =
+    fn recreate_document_channel(&mut self) -> OperationReceiver<D> {
+        let (document_sender, document_receiver): (OperationSender<D>, OperationReceiver<D>) =
             channel::bounded(PIPELINE_MAX_SIZE_IN_DOCS);
         mem::replace(&mut self.operation_sender, document_sender);
         mem::replace(&mut self.operation_receiver, document_receiver)
@@ -565,7 +565,7 @@ impl IndexWriter {
             .take()
             .expect("The IndexWriter does not have any lock. This is a bug, please report.");
 
-        let new_index_writer: IndexWriter = IndexWriter::new(
+        let new_index_writer: IndexWriter<D> = IndexWriter::new(
             &self.index,
             self.num_threads,
             self.heap_size_in_bytes_per_thread,
@@ -609,7 +609,7 @@ impl IndexWriter {
     /// It is also possible to add a payload to the `commit`
     /// using this API.
     /// See [`PreparedCommit::set_payload()`](PreparedCommit.html)
-    pub fn prepare_commit(&mut self) -> crate::Result<PreparedCommit> {
+    pub fn prepare_commit(&mut self) -> crate::Result<PreparedCommit<D>> {
         // Here, because we join all of the worker threads,
         // all of the segment update for this commit have been
         // sent.
@@ -697,7 +697,7 @@ impl IndexWriter {
     /// The opstamp is an increasing `u64` that can
     /// be used by the client to align commits with its own
     /// document queue.
-    pub fn add_document(&self, document: Document) -> Opstamp {
+    pub fn add_document(&self, document: D) -> Opstamp {
         let opstamp = self.stamper.stamp();
         let add_operation = AddOperation { opstamp, document };
         let send_result = self.operation_sender.send(smallvec![add_operation]);
@@ -740,7 +740,7 @@ impl IndexWriter {
     /// Like adds and deletes (see `IndexWriter.add_document` and
     /// `IndexWriter.delete_term`), the changes made by calling `run` will be
     /// visible to readers only after calling `commit()`.
-    pub fn run(&self, user_operations: Vec<UserOperation>) -> Opstamp {
+    pub fn run(&self, user_operations: Vec<UserOperation<D>>) -> Opstamp {
         let count = user_operations.len() as u64;
         if count == 0 {
             return self.stamper.stamp();
@@ -770,7 +770,7 @@ impl IndexWriter {
     }
 }
 
-impl Drop for IndexWriter {
+impl<D: 'static + DocumentTrait> Drop for IndexWriter<D> {
     fn drop(&mut self) {
         self.segment_updater.kill();
         self.drop_sender();
@@ -789,7 +789,7 @@ mod tests {
     use crate::error::*;
     use crate::indexer::NoMergePolicy;
     use crate::query::TermQuery;
-    use crate::schema::{self, IndexRecordOption, STRING};
+    use crate::schema::{self, Document, DocumentTrait, IndexRecordOption, STRING};
     use crate::Index;
     use crate::ReloadPolicy;
     use crate::Term;
@@ -902,7 +902,7 @@ mod tests {
     fn test_empty_operations_group() {
         let schema_builder = schema::Schema::builder();
         let index = Index::create_in_ram(schema_builder.build());
-        let index_writer = index.writer(3_000_000).unwrap();
+        let index_writer = index.writer::<Document>(3_000_000).unwrap();
         let operations1 = vec![];
         let batch_opstamp1 = index_writer.run(operations1);
         assert_eq!(batch_opstamp1, 0u64);
@@ -915,8 +915,8 @@ mod tests {
     fn test_lockfile_stops_duplicates() {
         let schema_builder = schema::Schema::builder();
         let index = Index::create_in_ram(schema_builder.build());
-        let _index_writer = index.writer(3_000_000).unwrap();
-        match index.writer(3_000_000) {
+        let _index_writer = index.writer::<Document>(3_000_000).unwrap();
+        match index.writer::<Document>(3_000_000) {
             Err(TantivyError::LockFailure(LockError::LockBusy, _)) => {}
             _ => panic!("Expected a `LockFailure` error"),
         }
@@ -926,8 +926,8 @@ mod tests {
     fn test_lockfile_already_exists_error_msg() {
         let schema_builder = schema::Schema::builder();
         let index = Index::create_in_ram(schema_builder.build());
-        let _index_writer = index.writer_for_tests().unwrap();
-        match index.writer_for_tests() {
+        let _index_writer = index.writer_for_tests::<Document>().unwrap();
+        match index.writer_for_tests::<Document>() {
             Err(err) => {
                 let err_msg = err.to_string();
                 assert!(err_msg.contains("already an `IndexWriter`"));
@@ -940,7 +940,7 @@ mod tests {
     fn test_set_merge_policy() {
         let schema_builder = schema::Schema::builder();
         let index = Index::create_in_ram(schema_builder.build());
-        let index_writer = index.writer(3_000_000).unwrap();
+        let index_writer = index.writer::<Document>(3_000_000).unwrap();
         assert_eq!(
             format!("{:?}", index_writer.get_merge_policy()),
             "LogMergePolicy { min_merge_size: 8, max_merge_size: 10000000, min_layer_size: 10000, \
@@ -959,11 +959,11 @@ mod tests {
         let schema_builder = schema::Schema::builder();
         let index = Index::create_in_ram(schema_builder.build());
         {
-            let _index_writer = index.writer(3_000_000).unwrap();
+            let _index_writer = index.writer::<Document>(3_000_000).unwrap();
             // the lock should be released when the
             // index_writer leaves the scope.
         }
-        let _index_writer_two = index.writer(3_000_000).unwrap();
+        let _index_writer_two = index.writer::<Document>(3_000_000).unwrap();
     }
 
     #[test]
@@ -1233,7 +1233,7 @@ mod tests {
     fn test_delete_all_documents_empty_index() {
         let schema_builder = schema::Schema::builder();
         let index = Index::create_in_ram(schema_builder.build());
-        let mut index_writer = index.writer_with_num_threads(4, 12_000_000).unwrap();
+        let mut index_writer = index.writer_with_num_threads::<Document>(4, 12_000_000).unwrap();
         let clear = index_writer.delete_all_documents();
         let commit = index_writer.commit();
         assert!(clear.is_ok());
@@ -1244,7 +1244,7 @@ mod tests {
     fn test_delete_all_documents_index_twice() {
         let schema_builder = schema::Schema::builder();
         let index = Index::create_in_ram(schema_builder.build());
-        let mut index_writer = index.writer_with_num_threads(4, 12_000_000).unwrap();
+        let mut index_writer = index.writer_with_num_threads::<Document>(4, 12_000_000).unwrap();
         let clear = index_writer.delete_all_documents();
         let commit = index_writer.commit();
         assert!(clear.is_ok());

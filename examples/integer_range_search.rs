@@ -4,7 +4,7 @@
 // You can use RangeQuery to get a Count of all occurrences in a given range.
 use tantivy::collector::Count;
 use tantivy::query::RangeQuery;
-use tantivy::schema::{Schema, INDEXED};
+use tantivy::schema::{DocumentTrait, Schema, INDEXED};
 use tantivy::{doc, Index, Result};
 
 fn run() -> Result<()> {

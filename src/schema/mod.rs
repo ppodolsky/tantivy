@@ -128,7 +128,7 @@ pub use self::value::Value;
 pub use self::facet::Facet;
 pub(crate) use self::facet::FACET_SEP_BYTE;
 
-pub use self::document::Document;
+pub use self::document::{Document, DocumentTrait};
 pub use self::field::Field;
 pub use self::term::Term;
 

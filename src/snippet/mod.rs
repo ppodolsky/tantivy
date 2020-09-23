@@ -2,8 +2,9 @@ use crate::query::Query;
 use crate::schema::Field;
 use crate::schema::Value;
 use crate::tokenizer::{TextAnalyzer, Token};
+use crate::Score;
 use crate::Searcher;
-use crate::{Document, Score};
+use crate::schema::DocumentTrait;
 use htmlescape::encode_minimal;
 use std::cmp::Ordering;
 use std::collections::BTreeMap;
@@ -212,7 +213,7 @@ fn select_best_fragment_combination(fragments: &[FragmentCandidate], text: &str)
 ///
 /// ```rust
 /// # use tantivy::query::QueryParser;
-/// # use tantivy::schema::{Schema, TEXT};
+/// # use tantivy::schema::{DocumentTrait, Schema, TEXT};
 /// # use tantivy::{doc, Index};
 /// use tantivy::SnippetGenerator;
 ///
@@ -299,7 +300,7 @@ impl SnippetGenerator {
     ///
     /// This method extract the text associated to the `SnippetGenerator`'s field
     /// and computes a snippet.
-    pub fn snippet_from_doc(&self, doc: &Document) -> Snippet {
+    pub fn snippet_from_doc<D: DocumentTrait>(&self, doc: &D) -> Snippet {
         let text: String = doc
             .get_all(self.field)
             .into_iter()
@@ -321,7 +322,7 @@ impl SnippetGenerator {
 mod tests {
     use super::{search_fragments, select_best_fragment_combination};
     use crate::query::QueryParser;
-    use crate::schema::{IndexRecordOption, Schema, TextFieldIndexing, TextOptions, TEXT};
+    use crate::schema::{DocumentTrait, IndexRecordOption, Schema, TextFieldIndexing, TextOptions, TEXT};
     use crate::tokenizer::SimpleTokenizer;
     use crate::Index;
     use crate::SnippetGenerator;

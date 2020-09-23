@@ -1,4 +1,4 @@
-use crate::schema::Document;
+use crate::schema::DocumentTrait;
 use crate::schema::Term;
 use crate::Opstamp;
 
@@ -11,16 +11,16 @@ pub struct DeleteOperation {
 
 /// Timestamped Add operation.
 #[derive(Eq, PartialEq, Debug)]
-pub struct AddOperation {
+pub struct AddOperation<D: DocumentTrait> {
     pub opstamp: Opstamp,
-    pub document: Document,
+    pub document: D,
 }
 
 /// UserOperation is an enum type that encapsulates other operation types.
 #[derive(Eq, PartialEq, Debug)]
-pub enum UserOperation {
+pub enum UserOperation<D: DocumentTrait> {
     /// Add operation
-    Add(Document),
+    Add(D),
     /// Delete operation
     Delete(Term),
 }

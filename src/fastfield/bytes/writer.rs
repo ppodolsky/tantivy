@@ -1,7 +1,7 @@
 use std::io;
 
 use crate::fastfield::serializer::FastFieldSerializer;
-use crate::schema::{Document, Field, Value};
+use crate::schema::{DocumentTrait, Field, Value};
 use crate::DocId;
 
 /// Writer for byte array (as in, any number of bytes per document) fast fields
@@ -47,7 +47,7 @@ impl BytesFastFieldWriter {
 
     /// Shift to the next document and add all of the
     /// matching field values present in the document.
-    pub fn add_document(&mut self, doc: &Document) {
+    pub fn add_document<D: DocumentTrait>(&mut self, doc: &D) {
         self.next_doc();
         for field_value in doc.field_values() {
             if field_value.field() == self.field {

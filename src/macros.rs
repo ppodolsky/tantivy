@@ -23,7 +23,7 @@
 /// # Example
 ///
 /// ```rust
-/// use tantivy::schema::{Schema, TEXT, FAST};
+/// use tantivy::schema::{DocumentTrait, Schema, TEXT, FAST};
 /// use tantivy::doc;
 ///
 /// //...
@@ -50,7 +50,7 @@ macro_rules! doc(
     }; // avoids a warning due to the useless `mut`.
     ($($field:expr => $value:expr),*) => {
         {
-            let mut document = $crate::Document::default();
+            let mut document = $crate::schema::Document::default();
             $(
                 document.add($crate::schema::FieldValue::new($field, $value.into()));
             )*
@@ -65,7 +65,7 @@ macro_rules! doc(
 
 #[cfg(test)]
 mod test {
-    use crate::schema::{Schema, FAST, TEXT};
+    use crate::schema::{DocumentTrait, Schema, FAST, TEXT};
 
     #[test]
     fn test_doc_basic() {

@@ -2,7 +2,7 @@ use fail;
 use std::path::Path;
 use tantivy::directory::{Directory, ManagedDirectory, RAMDirectory, TerminatingWrite};
 use tantivy::doc;
-use tantivy::schema::{Schema, TEXT};
+use tantivy::schema::{DocumentTrait, Schema, TEXT};
 use tantivy::{Index, Term};
 
 #[test]

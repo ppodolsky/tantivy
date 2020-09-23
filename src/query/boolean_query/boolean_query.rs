@@ -27,7 +27,7 @@ use std::collections::BTreeSet;
 ///use tantivy::collector::Count;
 ///use tantivy::doc;
 ///use tantivy::query::{BooleanQuery, Occur, PhraseQuery, Query, TermQuery};
-///use tantivy::schema::{IndexRecordOption, Schema, TEXT};
+///use tantivy::schema::{DocumentTrait, IndexRecordOption, Schema, TEXT};
 ///use tantivy::Term;
 ///use tantivy::Index;
 ///

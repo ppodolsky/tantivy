@@ -109,7 +109,7 @@ impl<TFruit: Fruit> FruitHandle<TFruit> {
 /// ```rust
 /// use tantivy::collector::{Count, TopDocs, MultiCollector};
 /// use tantivy::query::QueryParser;
-/// use tantivy::schema::{Schema, TEXT};
+/// use tantivy::schema::{DocumentTrait, Schema, TEXT};
 /// use tantivy::{doc, Index};
 ///
 /// let mut schema_builder = Schema::builder();
@@ -247,7 +247,7 @@ mod tests {
     use crate::collector::{Count, TopDocs};
     use crate::query::TermQuery;
     use crate::schema::IndexRecordOption;
-    use crate::schema::{Schema, TEXT};
+    use crate::schema::{DocumentTrait, Schema, TEXT};
     use crate::Index;
     use crate::Term;
 

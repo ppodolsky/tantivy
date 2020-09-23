@@ -75,7 +75,7 @@ mod tests {
     use super::AllQuery;
     use crate::docset::TERMINATED;
     use crate::query::Query;
-    use crate::schema::{Schema, TEXT};
+    use crate::schema::{DocumentTrait, Schema, TEXT};
     use crate::Index;
 
     fn create_test_index() -> Index {

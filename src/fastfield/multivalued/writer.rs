@@ -2,7 +2,7 @@ use crate::fastfield::serializer::FastSingleFieldSerializer;
 use crate::fastfield::value_to_u64;
 use crate::fastfield::FastFieldSerializer;
 use crate::postings::UnorderedTermId;
-use crate::schema::{Document, Field};
+use crate::schema::{DocumentTrait, Field};
 use crate::termdict::TermOrdinal;
 use crate::DocId;
 use fnv::FnvHashMap;
@@ -64,7 +64,7 @@ impl MultiValueIntFastFieldWriter {
 
     /// Shift to the next document and adds
     /// all of the matching field values present in the document.
-    pub fn add_document(&mut self, doc: &Document) {
+    pub fn add_document<D: DocumentTrait>(&mut self, doc: &D) {
         self.next_doc();
         // facets are indexed in the `SegmentWriter` as we encode their unordered id.
         if !self.is_facet {

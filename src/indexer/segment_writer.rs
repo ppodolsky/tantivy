@@ -6,6 +6,7 @@ use crate::fieldnorm::{FieldNormReaders, FieldNormsWriter};
 use crate::indexer::segment_serializer::SegmentSerializer;
 use crate::postings::compute_table_size;
 use crate::postings::MultiFieldPostingsWriter;
+use crate::schema::DocumentTrait;
 use crate::schema::FieldType;
 use crate::schema::Schema;
 use crate::schema::Term;
@@ -117,7 +118,7 @@ impl SegmentWriter {
     /// Indexes a new document
     ///
     /// As a user, you should rather use `IndexWriter`'s add_document.
-    pub fn add_document(&mut self, add_operation: AddOperation, schema: &Schema) -> io::Result<()> {
+    pub fn add_document<D: DocumentTrait>(&mut self, add_operation: AddOperation<D>, schema: &Schema) -> io::Result<()> {
         let doc_id = self.max_doc;
         let mut doc = add_operation.document;
         self.doc_opstamps.push(add_operation.opstamp);

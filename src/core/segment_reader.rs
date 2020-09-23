@@ -330,7 +330,7 @@ impl fmt::Debug for SegmentReader {
 #[cfg(test)]
 mod test {
     use crate::core::Index;
-    use crate::schema::{Schema, Term, STORED, TEXT};
+    use crate::schema::{Document, DocumentTrait, Schema, Term, STORED, TEXT};
     use crate::DocId;
 
     #[test]
@@ -353,7 +353,7 @@ mod test {
         }
 
         {
-            let mut index_writer2 = index.writer(50_000_000).unwrap();
+            let mut index_writer2 = index.writer::<Document>(50_000_000).unwrap();
             index_writer2.delete_term(Term::from_field_text(name, "horse"));
             index_writer2.delete_term(Term::from_field_text(name, "cap"));
 

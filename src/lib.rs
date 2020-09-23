@@ -166,7 +166,7 @@ pub use crate::indexer::operation::UserOperation;
 pub use crate::indexer::IndexWriter;
 pub use crate::postings::Postings;
 pub use crate::reader::LeasedItem;
-pub use crate::schema::{Document, Term};
+pub use crate::schema::{Document, DocumentTrait, Term};
 use std::fmt;
 
 use once_cell::sync::Lazy;

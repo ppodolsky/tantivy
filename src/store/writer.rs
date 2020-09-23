@@ -5,7 +5,7 @@ use crate::common::CountingWriter;
 use crate::common::{BinarySerializable, VInt};
 use crate::directory::TerminatingWrite;
 use crate::directory::WritePtr;
-use crate::schema::Document;
+use crate::schema::DocumentTrait;
 use crate::DocId;
 use std::io::{self, Write};
 
@@ -47,7 +47,7 @@ impl StoreWriter {
     /// The document id is implicitely the number of times
     /// this method has been called.
     ///
-    pub fn store(&mut self, stored_document: &Document) -> io::Result<()> {
+    pub fn store<D: DocumentTrait>(&mut self, stored_document: &D) -> io::Result<()> {
         self.intermediary_buffer.clear();
         stored_document.serialize(&mut self.intermediary_buffer)?;
         let doc_num_bytes = self.intermediary_buffer.len();

@@ -32,7 +32,7 @@ pub type DefaultMergePolicy = LogMergePolicy;
 #[cfg(feature = "mmap")]
 #[cfg(test)]
 mod tests_mmap {
-    use crate::schema::{self, Schema};
+    use crate::schema::{self, DocumentTrait, Schema};
     use crate::{Index, Term};
 
     #[test]

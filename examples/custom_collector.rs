@@ -13,7 +13,7 @@ use tantivy::collector::{Collector, SegmentCollector};
 use tantivy::fastfield::FastFieldReader;
 use tantivy::query::QueryParser;
 use tantivy::schema::Field;
-use tantivy::schema::{Schema, FAST, INDEXED, TEXT};
+use tantivy::schema::{DocumentTrait, Schema, FAST, INDEXED, TEXT};
 use tantivy::{doc, Index, Score, SegmentReader, TantivyError};
 
 #[derive(Default)]

@@ -38,7 +38,7 @@ mod tests {
     use crate::core::Index;
     use crate::directory::{Directory, RAMDirectory, ReadOnlySource};
     use crate::postings::TermInfo;
-    use crate::schema::{Document, Schema, TEXT};
+    use crate::schema::{Document, DocumentTrait, Schema, TEXT};
     use std::path::PathBuf;
     use std::str;
 

@@ -14,6 +14,73 @@ use std::mem;
 ///
 ///
 
+pub trait DocumentTrait: BinarySerializable + Clone + Send {
+    /// Creates a new, empty document object
+    fn new() -> Self;
+
+    /// Returns the number of `(field, value)` pairs.
+    fn len(&self) -> usize;
+
+    /// Returns true iff the document contains no fields.
+    fn is_empty(&self) -> bool;
+
+    /// Retain only the field that are matching the
+    /// predicate given in argument.
+    fn filter_fields<P: Fn(Field) -> bool>(&mut self, predicate: P);
+
+    /// Adding a facet to the document.
+    fn add_facet<F>(&mut self, field: Field, path: F) where Facet: From<F>;
+
+    /// Add a text field.
+    fn add_text<S: ToString>(&mut self, field: Field, text: S);
+
+    /// Add a pre-tokenized text field.
+    fn add_pre_tokenized_text(
+        &mut self,
+        field: Field,
+        pre_tokenized_text: &PreTokenizedString,
+    );
+
+    /// Add a u64 field
+    fn add_u64(&mut self, field: Field, value: u64);
+
+    /// Add a i64 field
+    fn add_i64(&mut self, field: Field, value: i64);
+
+    /// Add a f64 field
+    fn add_f64(&mut self, field: Field, value: f64);
+
+    /// Add a date field
+    fn add_date(&mut self, field: Field, value: &DateTime);
+
+    /// Add a bytes field
+    fn add_bytes<T: Into<Vec<u8>>>(&mut self, field: Field, value: T);
+
+    /// Add a field value
+    fn add(&mut self, field_value: FieldValue);
+
+    /// field_values accessor
+    fn field_values(&self) -> &[FieldValue];
+
+    /// Sort and groups the field_values by field.
+    ///
+    /// The result of this method is not cached and is
+    /// computed on the fly when this method is called.
+    fn get_sorted_field_values(&self) -> Vec<(Field, Vec<&FieldValue>)>;
+
+    /// Returns all of the `FieldValue`s associated the given field
+    fn get_all(&self, field: Field) -> Vec<&Value>;
+
+    /// Returns the first `FieldValue` associated the given field
+    fn get_first(&self, field: Field) -> Option<&Value>;
+
+    /// Prepares Document for being stored in the document store
+    ///
+    /// Method transforms PreTokenizedString values into String
+    /// values.
+    fn prepare_for_store(&mut self);
+}
+
 /// Documents are really just a list of couple `(field, value)`.
 /// In this list, one field may appear more than once.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize, Default)]
@@ -40,31 +107,25 @@ impl PartialEq for Document {
 
 impl Eq for Document {}
 
-impl Document {
-    /// Creates a new, empty document object
-    pub fn new() -> Document {
+impl DocumentTrait for Document {
+    fn new() -> Document {
         Document::default()
     }
 
-    /// Returns the number of `(field, value)` pairs.
-    pub fn len(&self) -> usize {
+    fn len(&self) -> usize {
         self.field_values.len()
     }
 
-    /// Returns true iff the document contains no fields.
-    pub fn is_empty(&self) -> bool {
+    fn is_empty(&self) -> bool {
         self.field_values.is_empty()
     }
 
-    /// Retain only the field that are matching the
-    /// predicate given in argument.
-    pub fn filter_fields<P: Fn(Field) -> bool>(&mut self, predicate: P) {
+    fn filter_fields<P: Fn(Field) -> bool>(&mut self, predicate: P) {
         self.field_values
             .retain(|field_value| predicate(field_value.field()));
     }
 
-    /// Adding a facet to the document.
-    pub fn add_facet<F>(&mut self, field: Field, path: F)
+    fn add_facet<F>(&mut self, field: Field, path: F)
     where
         Facet: From<F>,
     {
@@ -73,13 +134,11 @@ impl Document {
         self.add(FieldValue::new(field, value));
     }
 
-    /// Add a text field.
-    pub fn add_text<S: ToString>(&mut self, field: Field, text: S) {
+    fn add_text<S: ToString>(&mut self, field: Field, text: S) {
         self.add(FieldValue::new(field, Value::Str(text.to_string())));
     }
 
-    /// Add a pre-tokenized text field.
-    pub fn add_pre_tokenized_text(
+    fn add_pre_tokenized_text(
         &mut self,
         field: Field,
         pre_tokenized_text: &PreTokenizedString,
@@ -88,46 +147,35 @@ impl Document {
         self.add(FieldValue::new(field, value));
     }
 
-    /// Add a u64 field
-    pub fn add_u64(&mut self, field: Field, value: u64) {
+    fn add_u64(&mut self, field: Field, value: u64) {
         self.add(FieldValue::new(field, Value::U64(value)));
     }
 
-    /// Add a i64 field
-    pub fn add_i64(&mut self, field: Field, value: i64) {
+    fn add_i64(&mut self, field: Field, value: i64) {
         self.add(FieldValue::new(field, Value::I64(value)));
     }
 
-    /// Add a f64 field
-    pub fn add_f64(&mut self, field: Field, value: f64) {
+    fn add_f64(&mut self, field: Field, value: f64) {
         self.add(FieldValue::new(field, Value::F64(value)));
     }
 
-    /// Add a date field
-    pub fn add_date(&mut self, field: Field, value: &DateTime) {
+    fn add_date(&mut self, field: Field, value: &DateTime) {
         self.add(FieldValue::new(field, Value::Date(*value)));
     }
 
-    /// Add a bytes field
-    pub fn add_bytes<T: Into<Vec<u8>>>(&mut self, field: Field, value: T) {
+    fn add_bytes<T: Into<Vec<u8>>>(&mut self, field: Field, value: T) {
         self.add(FieldValue::new(field, Value::Bytes(value.into())))
     }
 
-    /// Add a field value
-    pub fn add(&mut self, field_value: FieldValue) {
+    fn add(&mut self, field_value: FieldValue) {
         self.field_values.push(field_value);
     }
 
-    /// field_values accessor
-    pub fn field_values(&self) -> &[FieldValue] {
+    fn field_values(&self) -> &[FieldValue] {
         &self.field_values
     }
 
-    /// Sort and groups the field_values by field.
-    ///
-    /// The result of this method is not cached and is
-    /// computed on the fly when this method is called.
-    pub fn get_sorted_field_values(&self) -> Vec<(Field, Vec<&FieldValue>)> {
+    fn get_sorted_field_values(&self) -> Vec<(Field, Vec<&FieldValue>)> {
         let mut field_values: Vec<&FieldValue> = self.field_values().iter().collect();
         field_values.sort_by_key(|field_value| field_value.field());
 
@@ -160,8 +208,7 @@ impl Document {
         grouped_field_values
     }
 
-    /// Returns all of the `FieldValue`s associated the given field
-    pub fn get_all(&self, field: Field) -> Vec<&Value> {
+    fn get_all(&self, field: Field) -> Vec<&Value> {
         self.field_values
             .iter()
             .filter(|field_value| field_value.field() == field)
@@ -169,19 +216,14 @@ impl Document {
             .collect()
     }
 
-    /// Returns the first `FieldValue` associated the given field
-    pub fn get_first(&self, field: Field) -> Option<&Value> {
+    fn get_first(&self, field: Field) -> Option<&Value> {
         self.field_values
             .iter()
             .find(|field_value| field_value.field() == field)
             .map(FieldValue::value)
     }
 
-    /// Prepares Document for being stored in the document store
-    ///
-    /// Method transforms PreTokenizedString values into String
-    /// values.
-    pub fn prepare_for_store(&mut self) {
+    fn prepare_for_store(&mut self) {
         for field_value in &mut self.field_values {
             if let Value::PreTokStr(pre_tokenized_text) = field_value.value() {
                 *field_value = FieldValue::new(

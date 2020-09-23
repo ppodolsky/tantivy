@@ -12,7 +12,7 @@ mod tests {
     use crate::schema::Cardinality;
     use crate::schema::Facet;
     use crate::schema::IntOptions;
-    use crate::schema::Schema;
+    use crate::schema::{DocumentTrait, Schema};
     use crate::Index;
     use chrono::Duration;
 

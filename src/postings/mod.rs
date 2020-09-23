@@ -53,7 +53,7 @@ pub mod tests {
     use crate::indexer::SegmentWriter;
     use crate::merge_policy::NoMergePolicy;
     use crate::query::Scorer;
-    use crate::schema::{Document, Schema, Term, INDEXED, STRING, TEXT};
+    use crate::schema::{Document, DocumentTrait, Schema, Term, INDEXED, STRING, TEXT};
     use crate::schema::{Field, TextOptions};
     use crate::schema::{IndexRecordOption, TextFieldIndexing};
     use crate::tokenizer::{SimpleTokenizer, MAX_TOKEN_LEN};
@@ -422,7 +422,7 @@ pub mod tests {
 
         // delete some of the documents
         {
-            let mut index_writer = index.writer_for_tests().unwrap();
+            let mut index_writer = index.writer_for_tests::<Document>().unwrap();
             index_writer.delete_term(term_0);
             assert!(index_writer.commit().is_ok());
         }
@@ -476,7 +476,7 @@ pub mod tests {
 
         // delete everything else
         {
-            let mut index_writer = index.writer_for_tests().unwrap();
+            let mut index_writer = index.writer_for_tests::<Document>().unwrap();
             index_writer.delete_term(term_1);
             assert!(index_writer.commit().is_ok());
         }

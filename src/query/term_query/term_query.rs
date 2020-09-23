@@ -21,7 +21,7 @@ use std::fmt;
 /// ```rust
 /// use tantivy::collector::{Count, TopDocs};
 /// use tantivy::query::TermQuery;
-/// use tantivy::schema::{Schema, TEXT, IndexRecordOption};
+/// use tantivy::schema::{DocumentTrait, Schema, TEXT, IndexRecordOption};
 /// use tantivy::{doc, Index, Term};
 /// # fn test() -> tantivy::Result<()> {
 /// let mut schema_builder = Schema::builder();

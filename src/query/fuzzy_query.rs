@@ -55,7 +55,7 @@ static LEV_BUILDER: Lazy<HashMap<(u8, bool), LevenshteinAutomatonBuilder>> = Laz
 /// ```rust
 /// use tantivy::collector::{Count, TopDocs};
 /// use tantivy::query::FuzzyTermQuery;
-/// use tantivy::schema::{Schema, TEXT};
+/// use tantivy::schema::{DocumentTrait, Schema, TEXT};
 /// use tantivy::{doc, Index, Term};
 ///
 /// fn example() -> tantivy::Result<()> {
@@ -165,7 +165,7 @@ mod test {
     use super::FuzzyTermQuery;
     use crate::assert_nearly_equals;
     use crate::collector::TopDocs;
-    use crate::schema::Schema;
+    use crate::schema::{DocumentTrait, Schema};
     use crate::schema::TEXT;
     use crate::Index;
     use crate::Term;

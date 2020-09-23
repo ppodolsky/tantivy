@@ -39,7 +39,7 @@ fn map_bound<TFrom, TTo, Transform: Fn(&TFrom) -> TTo>(
 /// ```rust
 /// use tantivy::collector::Count;
 /// use tantivy::query::RangeQuery;
-/// use tantivy::schema::{Schema, INDEXED};
+/// use tantivy::schema::{DocumentTrait, Schema, INDEXED};
 /// use tantivy::{doc, Index};
 /// # fn test() -> tantivy::Result<()> {
 /// let mut schema_builder = Schema::builder();
@@ -333,7 +333,7 @@ mod tests {
     use super::RangeQuery;
     use crate::collector::{Count, TopDocs};
     use crate::query::QueryParser;
-    use crate::schema::{Document, Field, Schema, INDEXED, TEXT};
+    use crate::schema::{Document, DocumentTrait, Field, Schema, INDEXED, TEXT};
     use crate::Index;
     use std::collections::Bound;
 

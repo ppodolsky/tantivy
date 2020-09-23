@@ -137,8 +137,8 @@ impl<S: Scorer> Scorer for BoostScorer<S> {
 mod tests {
     use super::BoostQuery;
     use crate::query::{AllQuery, Query};
-    use crate::schema::Schema;
-    use crate::{DocAddress, Document, Index};
+    use crate::schema::{Document, DocumentTrait, Schema};
+    use crate::{DocAddress, Index};
 
     #[test]
     fn test_boost_query_explain() {

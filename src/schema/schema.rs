@@ -270,7 +270,7 @@ impl Schema {
     }
 
     /// Create a named document off the doc.
-    pub fn to_named_doc(&self, doc: &Document) -> NamedFieldDocument {
+    pub fn to_named_doc<D: DocumentTrait>(&self, doc: &D) -> NamedFieldDocument {
         let mut field_map = BTreeMap::new();
         for (field, field_values) in doc.get_sorted_field_values() {
             let field_name = self.get_field_name(field);
@@ -287,7 +287,7 @@ impl Schema {
     /// Encode the schema in JSON.
     ///
     /// Encoding a document cannot fail.
-    pub fn to_json(&self, doc: &Document) -> String {
+    pub fn to_json<D: DocumentTrait>(&self, doc: &D) -> String {
         serde_json::to_string(&self.to_named_doc(doc)).expect("doc encoding failed. This is a bug")
     }
 

@@ -58,7 +58,7 @@ pub mod tests {
 
     use super::*;
     use crate::directory::{Directory, RAMDirectory, WritePtr};
-    use crate::schema::Document;
+    use crate::schema::{Document, DocumentTrait};
     use crate::schema::FieldValue;
     use crate::schema::Schema;
     use crate::schema::TextOptions;

@@ -30,7 +30,7 @@ use std::fmt;
 /// ```rust
 /// use tantivy::collector::TopDocs;
 /// use tantivy::query::QueryParser;
-/// use tantivy::schema::{Schema, TEXT};
+/// use tantivy::schema::{DocumentTrait, Schema, TEXT};
 /// use tantivy::{doc, DocAddress, Index};
 ///
 /// let mut schema_builder = Schema::builder();
@@ -115,7 +115,7 @@ impl TopDocs {
     /// ```rust
     /// use tantivy::collector::TopDocs;
     /// use tantivy::query::QueryParser;
-    /// use tantivy::schema::{Schema, TEXT};
+    /// use tantivy::schema::{DocumentTrait, Schema, TEXT};
     /// use tantivy::{doc, DocAddress, Index};
     ///
     /// let mut schema_builder = Schema::builder();
@@ -149,7 +149,7 @@ impl TopDocs {
     /// Set top-K to rank documents by a given fast field.
     ///
     /// ```rust
-    /// # use tantivy::schema::{Schema, FAST, TEXT};
+    /// # use tantivy::schema::{DocumentTrait, Schema, FAST, TEXT};
     /// # use tantivy::{doc, Index, DocAddress};
     /// # use tantivy::query::{Query, QueryParser};
     /// use tantivy::Searcher;
@@ -247,7 +247,7 @@ impl TopDocs {
     /// learning-to-rank model over various features
     ///
     /// ```rust
-    /// # use tantivy::schema::{Schema, FAST, TEXT};
+    /// # use tantivy::schema::{DocumentTrait, Schema, FAST, TEXT};
     /// # use tantivy::{doc, Index, DocAddress, DocId, Score};
     /// # use tantivy::query::QueryParser;
     /// use tantivy::SegmentReader;
@@ -353,7 +353,7 @@ impl TopDocs {
     /// # Example
     ///
     /// ```rust
-    /// # use tantivy::schema::{Schema, FAST, TEXT};
+    /// # use tantivy::schema::{DocumentTrait, Schema, FAST, TEXT};
     /// # use tantivy::{doc, Index, DocAddress, DocId};
     /// # use tantivy::query::QueryParser;
     /// use tantivy::SegmentReader;
@@ -548,7 +548,7 @@ mod tests {
     use super::TopDocs;
     use crate::collector::Collector;
     use crate::query::{AllQuery, Query, QueryParser};
-    use crate::schema::{Field, Schema, FAST, STORED, TEXT};
+    use crate::schema::{Document, DocumentTrait, Field, Schema, FAST, STORED, TEXT};
     use crate::Index;
     use crate::IndexWriter;
     use crate::Score;
@@ -817,11 +817,11 @@ mod tests {
         query: &str,
         query_field: Field,
         schema: Schema,
-        mut doc_adder: impl FnMut(&mut IndexWriter) -> (),
+        mut doc_adder: impl FnMut(&mut IndexWriter<Document>) -> (),
     ) -> (Index, Box<dyn Query>) {
         let index = Index::create_in_ram(schema);
 
-        let mut index_writer = index.writer_with_num_threads(1, 10_000_000).unwrap();
+        let mut index_writer = index.writer_with_num_threads::<Document>(1, 10_000_000).unwrap();
         doc_adder(&mut index_writer);
         index_writer.commit().unwrap();
         let query_parser = QueryParser::for_index(&index, vec![query_field]);

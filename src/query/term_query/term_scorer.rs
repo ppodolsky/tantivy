@@ -132,7 +132,7 @@ mod tests {
     use crate::postings::compression::COMPRESSION_BLOCK_SIZE;
     use crate::query::term_query::TermScorer;
     use crate::query::{BM25Weight, Scorer, TermQuery};
-    use crate::schema::{IndexRecordOption, Schema, TEXT};
+    use crate::schema::{DocumentTrait, IndexRecordOption, Schema, TEXT};
     use crate::Score;
     use crate::{assert_nearly_equals, Index, Searcher, SegmentId, Term};
     use crate::{DocId, DocSet, TERMINATED};

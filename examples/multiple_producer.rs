@@ -28,7 +28,7 @@
 use std::sync::{Arc, RwLock};
 use std::thread;
 use std::time::Duration;
-use tantivy::schema::{Schema, STORED, TEXT};
+use tantivy::schema::{Document, DocumentTrait, Schema, STORED, TEXT};
 use tantivy::{doc, Index, IndexWriter, Opstamp};
 
 fn main() -> tantivy::Result<()> {
@@ -39,7 +39,7 @@ fn main() -> tantivy::Result<()> {
     let schema = schema_builder.build();
 
     let index = Index::create_in_ram(schema);
-    let index_writer: Arc<RwLock<IndexWriter>> = Arc::new(RwLock::new(index.writer(50_000_000)?));
+    let index_writer: Arc<RwLock<IndexWriter<Document>>> = Arc::new(RwLock::new(index.writer(50_000_000)?));
 
     // # First indexing thread.
     let index_writer_clone_1 = index_writer.clone();

@@ -81,7 +81,7 @@ fn facet_depth(facet_bytes: &[u8]) -> usize {
 /// ```rust
 /// use tantivy::collector::FacetCollector;
 /// use tantivy::query::AllQuery;
-/// use tantivy::schema::{Facet, Schema, TEXT};
+/// use tantivy::schema::{DocumentTrait, Facet, Schema, TEXT};
 /// use tantivy::{doc, Index};
 ///
 /// fn example() -> tantivy::Result<()> {
@@ -458,7 +458,7 @@ mod tests {
     use crate::collector::Count;
     use crate::core::Index;
     use crate::query::{AllQuery, QueryParser, TermQuery};
-    use crate::schema::{Document, Facet, Field, IndexRecordOption, Schema};
+    use crate::schema::{Document, DocumentTrait, Facet, Field, IndexRecordOption, Schema};
     use crate::Term;
     use rand::distributions::Uniform;
     use rand::prelude::SliceRandom;

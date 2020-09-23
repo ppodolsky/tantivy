@@ -1,16 +1,17 @@
 use super::IndexWriter;
 use crate::Opstamp;
+use crate::schema::DocumentTrait;
 use futures::executor::block_on;
 
 /// A prepared commit
-pub struct PreparedCommit<'a> {
-    index_writer: &'a mut IndexWriter,
+pub struct PreparedCommit<'a, D: 'static + DocumentTrait> {
+    index_writer: &'a mut IndexWriter<D>,
     payload: Option<String>,
     opstamp: Opstamp,
 }
 
-impl<'a> PreparedCommit<'a> {
-    pub(crate) fn new(index_writer: &'a mut IndexWriter, opstamp: Opstamp) -> PreparedCommit<'_> {
+impl<'a, D: 'static + DocumentTrait> PreparedCommit<'a, D> {
+    pub(crate) fn new(index_writer: &'a mut IndexWriter<D>, opstamp: Opstamp) -> PreparedCommit<'_, D> {
         PreparedCommit {
             index_writer,
             payload: None,

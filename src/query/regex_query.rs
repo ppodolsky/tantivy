@@ -13,7 +13,7 @@ use tantivy_fst::Regex;
 /// ```rust
 /// use tantivy::collector::Count;
 /// use tantivy::query::RegexQuery;
-/// use tantivy::schema::{Schema, TEXT};
+/// use tantivy::schema::{DocumentTrait, Schema, TEXT};
 /// use tantivy::{doc, Index, Term};
 ///
 /// # fn test() -> tantivy::Result<()> {
@@ -92,7 +92,7 @@ mod test {
     use crate::assert_nearly_equals;
     use crate::collector::TopDocs;
     use crate::schema::TEXT;
-    use crate::schema::{Field, Schema};
+    use crate::schema::{DocumentTrait, Field, Schema};
     use crate::{Index, IndexReader};
     use std::sync::Arc;
     use tantivy_fst::Regex;

@@ -708,7 +708,7 @@ mod tests {
     use crate::query::BooleanQuery;
     use crate::query::Scorer;
     use crate::query::TermQuery;
-    use crate::schema::Document;
+    use crate::schema::{Document, DocumentTrait};
     use crate::schema::Facet;
     use crate::schema::IndexRecordOption;
     use crate::schema::IntOptions;
@@ -803,7 +803,7 @@ mod tests {
             let segment_ids = index
                 .searchable_segment_ids()
                 .expect("Searchable segments failed.");
-            let mut index_writer = index.writer_for_tests().unwrap();
+            let mut index_writer = index.writer_for_tests::<Document>().unwrap();
             block_on(index_writer.merge(&segment_ids)).expect("Merging failed");
             index_writer.wait_merging_threads().unwrap();
         }
@@ -1211,8 +1211,8 @@ mod tests {
         let index = Index::create_in_ram(schema_builder.build());
         let reader = index.reader().unwrap();
         {
-            let mut index_writer = index.writer_for_tests().unwrap();
-            let index_doc = |index_writer: &mut IndexWriter, doc_facets: &[&str]| {
+            let mut index_writer = index.writer_for_tests::<Document>().unwrap();
+            let index_doc = |index_writer: &mut IndexWriter<Document>, doc_facets: &[&str]| {
                 let mut doc = Document::default();
                 for facet in doc_facets {
                     doc.add_facet(facet_field, Facet::from(facet));
@@ -1276,7 +1276,7 @@ mod tests {
             let segment_ids = index
                 .searchable_segment_ids()
                 .expect("Searchable segments failed.");
-            let mut index_writer = index.writer_for_tests().unwrap();
+            let mut index_writer = index.writer_for_tests::<Document>().unwrap();
             block_on(index_writer.merge(&segment_ids)).expect("Merging failed");
             index_writer.wait_merging_threads().unwrap();
             reader.reload().unwrap();
@@ -1295,7 +1295,7 @@ mod tests {
 
         // Deleting one term
         {
-            let mut index_writer = index.writer_for_tests().unwrap();
+            let mut index_writer = index.writer_for_tests::<Document>().unwrap();
             let facet = Facet::from_path(vec!["top", "a", "firstdoc"]);
             let facet_term = Term::from_facet(facet_field, &facet);
             index_writer.delete_term(facet_term);
@@ -1389,7 +1389,7 @@ mod tests {
 
         {
             let mut index_writer = index.writer_for_tests().unwrap();
-            let index_doc = |index_writer: &mut IndexWriter, int_vals: &[u64]| {
+            let index_doc = |index_writer: &mut IndexWriter<Document>, int_vals: &[u64]| {
                 let mut doc = Document::default();
                 for &val in int_vals {
                     doc.add_u64(int_field, val);
@@ -1462,7 +1462,7 @@ mod tests {
             let segment_ids = index
                 .searchable_segment_ids()
                 .expect("Searchable segments failed.");
-            let mut index_writer = index.writer_for_tests().unwrap();
+            let mut index_writer = index.writer_for_tests::<Document>().unwrap();
             assert!(block_on(index_writer.merge(&segment_ids)).is_ok());
             assert!(index_writer.wait_merging_threads().is_ok());
         }

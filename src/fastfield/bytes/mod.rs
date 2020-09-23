@@ -6,7 +6,7 @@ pub use self::writer::BytesFastFieldWriter;
 
 #[cfg(test)]
 mod tests {
-    use crate::schema::Schema;
+    use crate::schema::{DocumentTrait, Schema};
     use crate::Index;
 
     #[test]

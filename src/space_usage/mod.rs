@@ -295,7 +295,7 @@ impl FieldUsage {
 mod test {
     use crate::core::Index;
     use crate::schema::Field;
-    use crate::schema::Schema;
+    use crate::schema::{Document, DocumentTrait, Schema};
     use crate::schema::{FAST, INDEXED, STORED, TEXT};
     use crate::space_usage::ByteCount;
     use crate::space_usage::PerFieldSpaceUsage;
@@ -462,7 +462,7 @@ mod test {
         }
 
         {
-            let mut index_writer2 = index.writer(50_000_000).unwrap();
+            let mut index_writer2 = index.writer::<Document>(50_000_000).unwrap();
             index_writer2.delete_term(Term::from_field_u64(name, 2u64));
             index_writer2.delete_term(Term::from_field_u64(name, 3u64));
 

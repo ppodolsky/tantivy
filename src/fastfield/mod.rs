@@ -185,7 +185,7 @@ mod tests {
     use crate::schema::Field;
     use crate::schema::Schema;
     use crate::schema::FAST;
-    use crate::schema::{Document, IntOptions};
+    use crate::schema::{Document, DocumentTrait, IntOptions};
     use crate::{Index, SegmentId, SegmentReader};
     use once_cell::sync::Lazy;
     use rand::prelude::SliceRandom;

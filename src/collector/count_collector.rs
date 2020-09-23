@@ -11,7 +11,7 @@ use crate::SegmentReader;
 /// ```rust
 /// use tantivy::collector::Count;
 /// use tantivy::query::QueryParser;
-/// use tantivy::schema::{Schema, TEXT};
+/// use tantivy::schema::{DocumentTrait, Schema, TEXT};
 /// use tantivy::{doc, Index};
 ///
 /// let mut schema_builder = Schema::builder();

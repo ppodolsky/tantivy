@@ -530,7 +530,7 @@ mod tests {
 
     use super::*;
     use crate::indexer::LogMergePolicy;
-    use crate::schema::{Schema, SchemaBuilder, TEXT};
+    use crate::schema::{DocumentTrait, Schema, SchemaBuilder, TEXT};
     use crate::Index;
     use crate::ReloadPolicy;
     use std::fs;

@@ -82,7 +82,7 @@ mod tests {
     use super::AutomatonWeight;
     use crate::docset::TERMINATED;
     use crate::query::Weight;
-    use crate::schema::{Schema, STRING};
+    use crate::schema::{DocumentTrait, Schema, STRING};
     use crate::Index;
     use tantivy_fst::Automaton;
 

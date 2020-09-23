@@ -4,7 +4,7 @@ use crate::common::BinarySerializable;
 use crate::common::VInt;
 use crate::fastfield::{BytesFastFieldWriter, FastFieldSerializer};
 use crate::postings::UnorderedTermId;
-use crate::schema::{Cardinality, Document, Field, FieldEntry, FieldType, Schema};
+use crate::schema::{Cardinality, DocumentTrait, Field, FieldEntry, FieldType, Schema};
 use crate::termdict::TermOrdinal;
 use fnv::FnvHashMap;
 use std::collections::HashMap;
@@ -104,7 +104,7 @@ impl FastFieldsWriter {
     }
 
     /// Indexes all of the fastfields of a new document.
-    pub fn add_document(&mut self, doc: &Document) {
+    pub fn add_document<D: DocumentTrait>(&mut self, doc: &D) {
         for field_writer in &mut self.single_value_writers {
             field_writer.add_document(doc);
         }
@@ -217,7 +217,7 @@ impl IntFastFieldWriter {
     /// instead.
     /// If the document has more than one value for the given field,
     /// only the first one is taken in account.
-    fn extract_val(&self, doc: &Document) -> u64 {
+    fn extract_val<D: DocumentTrait>(&self, doc: &D) -> u64 {
         match doc.get_first(self.field) {
             Some(v) => super::value_to_u64(v),
             None => self.val_if_missing,
@@ -226,7 +226,7 @@ impl IntFastFieldWriter {
 
     /// Extract the fast field value from the document
     /// (or use the default value) and records it.
-    pub fn add_document(&mut self, doc: &Document) {
+    pub fn add_document<D: DocumentTrait>(&mut self, doc: &D) {
         let val = self.extract_val(doc);
         self.add_val(val);
     }
