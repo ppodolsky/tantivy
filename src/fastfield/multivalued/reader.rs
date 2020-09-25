@@ -65,7 +65,7 @@ impl<Item: FastValue> MultiValueIntFastFieldReader<Item> {
 mod tests {
 
     use crate::core::Index;
-    use crate::schema::{DocumentTrait, Facet, Schema};
+    use crate::schema::{DocumentTrait, Facet, Schema, SchemaTrait};
 
     #[test]
     fn test_multifastfield_reader() {

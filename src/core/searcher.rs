@@ -4,7 +4,7 @@ use crate::core::InvertedIndexReader;
 use crate::core::SegmentReader;
 use crate::query::Query;
 use crate::schema::Document;
-use crate::schema::Schema;
+use crate::schema::{Schema, SchemaTrait};
 use crate::schema::{Field, Term};
 use crate::space_usage::SearcherSpaceUsage;
 use crate::store::StoreReader;

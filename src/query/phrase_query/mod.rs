@@ -14,7 +14,7 @@ pub mod tests {
     use crate::collector::tests::{TEST_COLLECTOR_WITHOUT_SCORE, TEST_COLLECTOR_WITH_SCORE};
     use crate::core::Index;
     use crate::query::Weight;
-    use crate::schema::{DocumentTrait, Schema, Term, TEXT};
+    use crate::schema::{DocumentTrait, Schema, SchemaTrait, Term, TEXT};
     use crate::DocId;
     use crate::{DocAddress, TERMINATED};
 

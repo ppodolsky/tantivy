@@ -3,6 +3,7 @@ use crate::collector::SegmentCollector;
 use crate::fastfield::FacetReader;
 use crate::schema::Facet;
 use crate::schema::Field;
+use crate::schema::SchemaTrait;
 use crate::DocId;
 use crate::Score;
 use crate::SegmentLocalId;
@@ -458,7 +459,7 @@ mod tests {
     use crate::collector::Count;
     use crate::core::Index;
     use crate::query::{AllQuery, QueryParser, TermQuery};
-    use crate::schema::{Document, DocumentTrait, Facet, Field, IndexRecordOption, Schema};
+    use crate::schema::{Document, DocumentTrait, Facet, Field, IndexRecordOption, Schema, SchemaTrait};
     use crate::Term;
     use rand::distributions::Uniform;
     use rand::prelude::SliceRandom;
@@ -661,7 +662,7 @@ mod bench {
 
     use crate::collector::FacetCollector;
     use crate::query::AllQuery;
-    use crate::schema::{Facet, Schema};
+    use crate::schema::{Facet, Schema, SchemaTrait};
     use crate::Index;
     use rand::seq::SliceRandom;
     use rand::thread_rng;

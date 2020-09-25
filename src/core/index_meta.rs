@@ -1,6 +1,6 @@
 use super::SegmentComponent;
 use crate::core::SegmentId;
-use crate::schema::Schema;
+use crate::schema::{Schema, SchemaTrait};
 use crate::Opstamp;
 use census::{Inventory, TrackedObject};
 use serde::{Deserialize, Serialize};
@@ -282,7 +282,7 @@ impl fmt::Debug for IndexMeta {
 mod tests {
 
     use super::IndexMeta;
-    use crate::schema::{Schema, TEXT};
+    use crate::schema::{Schema, SchemaTrait, TEXT};
     use serde_json;
 
     #[test]

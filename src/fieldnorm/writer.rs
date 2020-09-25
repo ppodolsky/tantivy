@@ -3,7 +3,7 @@ use crate::DocId;
 use super::fieldnorm_to_id;
 use super::FieldNormsSerializer;
 use crate::schema::Field;
-use crate::schema::Schema;
+use crate::schema::{Schema, SchemaTrait};
 use std::io;
 
 /// The `FieldNormsWriter` is in charge of tracking the fieldnorm byte

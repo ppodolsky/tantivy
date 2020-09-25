@@ -3,7 +3,7 @@ use super::skiplist::SkipList;
 use crate::common::BinarySerializable;
 use crate::common::VInt;
 use crate::directory::ReadOnlySource;
-use crate::schema::Document;
+use crate::schema::{Document, Schema};
 use crate::space_usage::StoreSpaceUsage;
 use crate::DocId;
 use std::cell::RefCell;
@@ -18,11 +18,12 @@ pub struct StoreReader {
     current_block_offset: RefCell<usize>,
     current_block: RefCell<Vec<u8>>,
     max_doc: DocId,
+    schema: Schema,
 }
 
 impl StoreReader {
     /// Opens a store reader
-    pub fn from_source(data: ReadOnlySource) -> StoreReader {
+    pub fn from_source(data: ReadOnlySource, schema: Schema) -> StoreReader {
         let (data_source, offset_index_source, max_doc) = split_source(data);
         StoreReader {
             data: data_source,
@@ -30,6 +31,7 @@ impl StoreReader {
             current_block_offset: RefCell::new(usize::max_value()),
             current_block: RefCell::new(Vec::new()),
             max_doc,
+            schema,
         }
     }
 

@@ -6,7 +6,7 @@ use crate::common::CompositeFile;
 use crate::directory::ReadOnlySource;
 use crate::directory::{Directory, RAMDirectory, WritePtr};
 use crate::fastfield::{FastFieldSerializer, FastFieldsWriter};
-use crate::schema::Schema;
+use crate::schema::{Schema, SchemaTrait};
 use crate::schema::FAST;
 use crate::DocId;
 use owning_ref::OwningRef;

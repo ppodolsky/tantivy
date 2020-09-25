@@ -4,7 +4,7 @@ use crate::common::BinarySerializable;
 use crate::common::VInt;
 use crate::fastfield::{BytesFastFieldWriter, FastFieldSerializer};
 use crate::postings::UnorderedTermId;
-use crate::schema::{Cardinality, DocumentTrait, Field, FieldEntry, FieldType, Schema};
+use crate::schema::{Cardinality, DocumentTrait, Field, FieldEntry, FieldType, Schema, SchemaTrait};
 use crate::termdict::TermOrdinal;
 use fnv::FnvHashMap;
 use std::collections::HashMap;

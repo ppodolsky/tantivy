@@ -7,7 +7,7 @@ use crate::postings::recorder::{
 use crate::postings::UnorderedTermId;
 use crate::postings::{FieldSerializer, InvertedIndexSerializer};
 use crate::schema::IndexRecordOption;
-use crate::schema::{Field, FieldEntry, FieldType, Schema, Term};
+use crate::schema::{Field, FieldEntry, FieldType, Schema, SchemaTrait, Term};
 use crate::termdict::TermOrdinal;
 use crate::tokenizer::TokenStream;
 use crate::tokenizer::{Token, MAX_TOKEN_LEN};

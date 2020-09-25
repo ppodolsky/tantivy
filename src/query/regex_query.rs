@@ -92,7 +92,7 @@ mod test {
     use crate::assert_nearly_equals;
     use crate::collector::TopDocs;
     use crate::schema::TEXT;
-    use crate::schema::{DocumentTrait, Field, Schema};
+    use crate::schema::{DocumentTrait, Field, Schema, SchemaTrait};
     use crate::{Index, IndexReader};
     use std::sync::Arc;
     use tantivy_fst::Regex;

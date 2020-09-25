@@ -60,7 +60,7 @@ pub mod tests {
     use crate::directory::{Directory, RAMDirectory, WritePtr};
     use crate::schema::{Document, DocumentTrait};
     use crate::schema::FieldValue;
-    use crate::schema::Schema;
+    use crate::schema::{Schema, SchemaTrait};
     use crate::schema::TextOptions;
     use std::path::Path;
 
@@ -110,7 +110,7 @@ pub mod tests {
         let schema = write_lorem_ipsum_store(store_file, 1_000);
         let field_title = schema.get_field("title").unwrap();
         let store_source = directory.open_read(path).unwrap();
-        let store = StoreReader::from_source(store_source);
+        let store = StoreReader::from_source(store_source, schema.clone());
         for i in 0..1_000 {
             assert_eq!(
                 *store

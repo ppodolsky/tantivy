@@ -4,7 +4,7 @@ use crate::query::bm25::BM25Weight;
 use crate::query::Query;
 use crate::query::Weight;
 use crate::schema::IndexRecordOption;
-use crate::schema::{Field, Term};
+use crate::schema::{Field, SchemaTrait, Term};
 use std::collections::BTreeSet;
 
 /// `PhraseQuery` matches a specific sequence of words.

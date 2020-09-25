@@ -8,7 +8,7 @@ use crate::positions::PositionSerializer;
 use crate::postings::compression::{BlockEncoder, VIntEncoder, COMPRESSION_BLOCK_SIZE};
 use crate::postings::skip::SkipSerializer;
 use crate::query::BM25Weight;
-use crate::schema::Schema;
+use crate::schema::{Schema, SchemaTrait};
 use crate::schema::{Field, FieldEntry, FieldType};
 use crate::termdict::{TermDictionaryBuilder, TermOrdinal};
 use crate::{DocId, Score};

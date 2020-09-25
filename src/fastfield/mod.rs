@@ -183,7 +183,7 @@ mod tests {
     use crate::fastfield::FastFieldReader;
     use crate::merge_policy::NoMergePolicy;
     use crate::schema::Field;
-    use crate::schema::Schema;
+    use crate::schema::{Schema, SchemaTrait};
     use crate::schema::FAST;
     use crate::schema::{Document, DocumentTrait, IntOptions};
     use crate::{Index, SegmentId, SegmentReader};

@@ -8,7 +8,20 @@ use serde::de::{SeqAccess, Visitor};
 use serde::ser::SerializeSeq;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::{self, Map as JsonObject, Value as JsonValue};
+use std::io;
 use std::fmt;
+use std::path::PathBuf;
+
+pub trait SchemaTrait {
+    /// Return the `FieldEntry` associated to a `Field`.
+    fn get_field_entry(&self, field: Field) -> &FieldEntry;
+
+    /// Return the field name for a given `Field`.
+    fn get_field_name(&self, field: Field) -> &str;
+
+    /// Returns the field option associated with a given name.
+    fn get_field(&self, field_name: &str) -> Option<Field>;
+}
 
 /// Tantivy has a very strict schema.
 /// You need to specify in advance whether a field is indexed or not,
@@ -220,17 +233,21 @@ impl Eq for InnerSchema {}
 #[derive(Clone, Eq, PartialEq)]
 pub struct Schema(Arc<InnerSchema>);
 
-impl Schema {
-    /// Return the `FieldEntry` associated to a `Field`.
-    pub fn get_field_entry(&self, field: Field) -> &FieldEntry {
+impl SchemaTrait for Schema {
+    fn get_field_entry(&self, field: Field) -> &FieldEntry {
         &self.0.fields[field.field_id() as usize]
     }
 
-    /// Return the field name for a given `Field`.
-    pub fn get_field_name(&self, field: Field) -> &str {
+    fn get_field_name(&self, field: Field) -> &str {
         self.get_field_entry(field).name()
     }
 
+    fn get_field(&self, field_name: &str) -> Option<Field> {
+        self.0.fields_map.get(field_name).cloned()
+    }
+}
+
+impl Schema {
     /// Return the list of all the `Field`s.
     pub fn fields(&self) -> impl Iterator<Item = (Field, &FieldEntry)> {
         self.0
@@ -239,15 +256,9 @@ impl Schema {
             .enumerate()
             .map(|(field_id, field_entry)| (Field::from_field_id(field_id as u32), field_entry))
     }
-
     /// Creates a new builder.
     pub fn builder() -> SchemaBuilder {
         SchemaBuilder::default()
-    }
-
-    /// Returns the field option associated with a given name.
-    pub fn get_field(&self, field_name: &str) -> Option<Field> {
-        self.0.fields_map.get(field_name).cloned()
     }
 
     /// Create a named document off the doc.
@@ -379,6 +390,46 @@ impl<'de> Deserialize<'de> for Schema {
     }
 }
 
+#[derive(Clone, Eq, PartialEq)]
+pub struct ProtoSchema;
+
+#[repr(u32)]
+enum ProtoOption {
+    MessageSchema = 50000,
+    FieldIndexed = 50001,
+    FieldStored = 50002,
+    FieldFast = 50003,
+}
+
+impl ProtoSchema {
+    pub fn from_proto_file(includes: &[&std::path::Path], input: &[&std::path::Path]) -> io::Result<ProtoSchema> {
+        let parsed = protobuf_codegen_pure::parse_and_typecheck(includes, input)?;
+        for file_descriptor in parsed.file_descriptors.iter() {
+            for message_type in file_descriptor.message_type.iter() {
+                let is_schema = message_type.options
+                    .get_ref()
+                    .unknown_fields
+                    .iter()
+                    .any(
+                        |option| option.0 == ProtoOption::MessageSchema as u32 && option.1.varint[0] == 1
+                    );
+                if !is_schema {
+                    continue
+                }
+                let field_options: Vec<(i32, String, protobuf::descriptor::FieldDescriptorProto_Type, bool, bool, bool)> = message_type.field.iter().map(|field| {
+                    let unknown_fields = &field.options.get_ref().unknown_fields;
+                    let is_indexed = unknown_fields.get(ProtoOption::FieldIndexed as u32).map(|f| f.varint[0] != 0).unwrap_or(false);
+                    let is_stored = unknown_fields.get(ProtoOption::FieldStored as u32).map(|f| f.varint[0] != 0).unwrap_or(false);
+                    let is_fast = unknown_fields.get(ProtoOption::FieldFast as u32).map(|f| f.varint[0] != 0).unwrap_or(false);
+                    (field.get_number(), field.get_name().to_string(), field.get_field_type(), is_indexed, is_stored, is_fast)
+                }).collect();
+            }
+        }
+        Ok(ProtoSchema{})
+    }
+}
+
+
 /// Error that may happen when deserializing
 /// a document from JSON.
 #[derive(Debug, Fail, PartialEq)]
@@ -407,6 +458,9 @@ mod tests {
     use matches::{assert_matches, matches};
     use serde_json;
     use std::collections::BTreeMap;
+    use std::fs::File;
+    use std::io::{self, Write};
+    use tempdir::TempDir;
 
     #[test]
     pub fn is_indexed_test() {
@@ -586,6 +640,58 @@ mod tests {
             err,
             DocParsingError::NoSuchFieldInSchema("title".to_string())
         );
+    }
+
+    #[test]
+    pub fn test_proto_schema() -> io::Result<()> {
+        let tantivy_proto = br#"
+        syntax = "proto3";
+
+        import "google/protobuf/descriptor.proto";
+
+        extend google.protobuf.MessageOptions {
+          bool schema = 50000;
+        }
+
+        extend google.protobuf.FieldOptions {
+          bool indexed = 50001;
+          bool stored = 50002;
+          bool fast = 50003;
+        }
+        "#;
+
+        let schema_proto = br#"
+        syntax = "proto3";
+
+        import "tantivy.proto";
+
+        message Article {
+          option (schema) = true;
+
+          int64 id = 1 [(fast) = true];
+          string abstract = 2 [(indexed) = true, (stored) = true];
+          string title = 3 [(indexed) = true, (stored) = true];
+        }
+        "#;
+
+        let dir = TempDir::new("tantivy_proto_test")?;
+        let tantivy_proto_path = dir.path().join("tantivy.proto");
+        let schema_proto_path = dir.path().join("schema.proto");
+
+        {
+            let mut tantivy_proto_file = File::create(&tantivy_proto_path)?;
+            tantivy_proto_file.write_all(tantivy_proto)?;
+            tantivy_proto_file.sync_all()?;
+
+            let mut schema_proto_file = File::create(&schema_proto_path)?;
+            schema_proto_file.write_all(schema_proto)?;
+            schema_proto_file.sync_all()?;
+        }
+
+        ProtoSchema::from_proto_file(&[&dir.path()], &[&tantivy_proto_path, &schema_proto_path])?;
+        assert_eq!(1, 2);
+
+        Ok(())
     }
 
     #[test]

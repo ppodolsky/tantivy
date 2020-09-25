@@ -7,7 +7,7 @@ use crate::query::ConstScorer;
 use crate::query::{BitSetDocSet, Explanation};
 use crate::query::{Query, Scorer, Weight};
 use crate::schema::Type;
-use crate::schema::{Field, IndexRecordOption, Term};
+use crate::schema::{Field, IndexRecordOption, SchemaTrait, Term};
 use crate::termdict::{TermDictionary, TermStreamer};
 use crate::{DocId, Score};
 use std::collections::Bound;
@@ -333,7 +333,7 @@ mod tests {
     use super::RangeQuery;
     use crate::collector::{Count, TopDocs};
     use crate::query::QueryParser;
-    use crate::schema::{Document, DocumentTrait, Field, Schema, INDEXED, TEXT};
+    use crate::schema::{Document, DocumentTrait, Field, Schema, SchemaTrait, INDEXED, TEXT};
     use crate::Index;
     use std::collections::Bound;
 

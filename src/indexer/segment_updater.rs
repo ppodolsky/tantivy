@@ -17,7 +17,7 @@ use crate::indexer::SegmentEntry;
 use crate::indexer::SegmentSerializer;
 use crate::indexer::{DefaultMergePolicy, MergePolicy};
 use crate::indexer::{MergeCandidate, MergeOperation};
-use crate::schema::Schema;
+use crate::schema::{Schema, SchemaTrait};
 use crate::Opstamp;
 use futures::channel::oneshot;
 use futures::executor::{ThreadPool, ThreadPoolBuilder};

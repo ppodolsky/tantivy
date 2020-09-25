@@ -8,6 +8,7 @@ use crate::query::Scorer;
 use crate::query::Weight;
 use crate::query::{EmptyScorer, Explanation};
 use crate::schema::IndexRecordOption;
+use crate::schema::SchemaTrait;
 use crate::schema::Term;
 use crate::Score;
 use crate::{DocId, DocSet};
@@ -116,6 +117,7 @@ mod tests {
     use super::super::tests::create_index;
     use crate::docset::TERMINATED;
     use crate::query::PhraseQuery;
+    use crate::schema::SchemaTrait;
     use crate::{DocSet, Term};
 
     #[test]

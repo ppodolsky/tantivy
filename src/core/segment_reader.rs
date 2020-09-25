@@ -10,7 +10,7 @@ use crate::fastfield::FacetReader;
 use crate::fastfield::FastFieldReaders;
 use crate::fieldnorm::{FieldNormReader, FieldNormReaders};
 use crate::schema::FieldType;
-use crate::schema::Schema;
+use crate::schema::{Schema, SchemaTrait};
 use crate::schema::{Field, IndexRecordOption};
 use crate::space_usage::SegmentSpaceUsage;
 use crate::store::StoreReader;
@@ -138,7 +138,7 @@ impl SegmentReader {
 
     /// Accessor to the segment's `StoreReader`.
     pub fn get_store_reader(&self) -> StoreReader {
-        StoreReader::from_source(self.store_source.clone())
+        StoreReader::from_source(self.store_source.clone(), self.schema.clone())
     }
 
     /// Open a new segment for reading.
@@ -330,7 +330,7 @@ impl fmt::Debug for SegmentReader {
 #[cfg(test)]
 mod test {
     use crate::core::Index;
-    use crate::schema::{Document, DocumentTrait, Schema, Term, STORED, TEXT};
+    use crate::schema::{Document, DocumentTrait, Schema, SchemaTrait, Term, STORED, TEXT};
     use crate::DocId;
 
     #[test]

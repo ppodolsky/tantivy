@@ -14,7 +14,7 @@ mod tests {
     use crate::docset::DocSet;
     use crate::postings::compression::COMPRESSION_BLOCK_SIZE;
     use crate::query::{Query, QueryParser, Scorer, TermQuery};
-    use crate::schema::{DocumentTrait, Field, IndexRecordOption, Schema, STRING, TEXT};
+    use crate::schema::{DocumentTrait, Field, IndexRecordOption, Schema, SchemaTrait, STRING, TEXT};
     use crate::{Index, Term, TERMINATED};
 
     #[test]

@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.MessageOptions {
+  TantivyMessage tantivy_message = 50000;
+}
+
+extend google.protobuf.FieldOptions {
+  TantivyField tantivy_field = 50001;
+}
+
+message TantivyMessage {
+  bool schema = 50002;
+}
+
+message TantivyField {
+  bool indexed = 50003;
+  bool stored = 50004;
+  bool fast = 50005;
+}
+
+message Article {
+  option (tantivy_message).schema = true;
+
+  int64 id = 1 [(tantivy_field).fast = true];
+  string abstract = 2 [(tantivy_field).indexed = true, (tantivy_field).stored = true];
+  string title = 3 [(tantivy_field).indexed = true, (tantivy_field).stored = true];
+}

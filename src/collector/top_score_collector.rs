@@ -8,7 +8,7 @@ use crate::collector::{
 };
 use crate::fastfield::FastFieldReader;
 use crate::query::Weight;
-use crate::schema::Field;
+use crate::schema::{Field, SchemaTrait};
 use crate::DocAddress;
 use crate::DocId;
 use crate::Score;
@@ -247,7 +247,7 @@ impl TopDocs {
     /// learning-to-rank model over various features
     ///
     /// ```rust
-    /// # use tantivy::schema::{DocumentTrait, Schema, FAST, TEXT};
+    /// # use tantivy::schema::{DocumentTrait, Schema, SchemaTrait, FAST, TEXT};
     /// # use tantivy::{doc, Index, DocAddress, DocId, Score};
     /// # use tantivy::query::QueryParser;
     /// use tantivy::SegmentReader;
@@ -353,7 +353,7 @@ impl TopDocs {
     /// # Example
     ///
     /// ```rust
-    /// # use tantivy::schema::{DocumentTrait, Schema, FAST, TEXT};
+    /// # use tantivy::schema::{DocumentTrait, Schema, SchemaTrait, FAST, TEXT};
     /// # use tantivy::{doc, Index, DocAddress, DocId};
     /// # use tantivy::query::QueryParser;
     /// use tantivy::SegmentReader;
@@ -548,7 +548,7 @@ mod tests {
     use super::TopDocs;
     use crate::collector::Collector;
     use crate::query::{AllQuery, Query, QueryParser};
-    use crate::schema::{Document, DocumentTrait, Field, Schema, FAST, STORED, TEXT};
+    use crate::schema::{Document, DocumentTrait, Field, Schema, SchemaTrait, FAST, STORED, TEXT};
     use crate::Index;
     use crate::IndexWriter;
     use crate::Score;

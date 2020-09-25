@@ -9,7 +9,7 @@ use crate::query::RangeQuery;
 use crate::query::TermQuery;
 use crate::query::{AllQuery, BoostQuery};
 use crate::schema::{Facet, IndexRecordOption};
-use crate::schema::{Field, Schema};
+use crate::schema::{Field, Schema, SchemaTrait};
 use crate::schema::{FieldType, Term};
 use crate::tokenizer::TokenizerManager;
 use crate::Score;
@@ -577,7 +577,7 @@ mod test {
     use crate::query::Query;
     use crate::schema::Field;
     use crate::schema::{IndexRecordOption, TextFieldIndexing, TextOptions};
-    use crate::schema::{Schema, Term, INDEXED, STORED, STRING, TEXT};
+    use crate::schema::{Schema, SchemaTrait, Term, INDEXED, STORED, STRING, TEXT};
     use crate::tokenizer::{
         LowerCaser, SimpleTokenizer, StopWordFilter, TextAnalyzer, TokenizerManager,
     };

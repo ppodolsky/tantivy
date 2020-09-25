@@ -216,7 +216,7 @@ mod tests {
     use crate::schema::field_type::ValueParsingError;
     use crate::schema::TextOptions;
     use crate::schema::Value;
-    use crate::schema::{Document, DocumentTrait, Schema, INDEXED};
+    use crate::schema::{Document, DocumentTrait, Schema, SchemaTrait, INDEXED};
     use crate::tokenizer::{PreTokenizedString, Token};
     use crate::DateTime;
     use chrono::{NaiveDate, NaiveDateTime, NaiveTime, Utc};

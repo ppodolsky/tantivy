@@ -16,7 +16,7 @@ use crate::postings::Postings;
 use crate::postings::{InvertedIndexSerializer, SegmentPostings};
 use crate::schema::Cardinality;
 use crate::schema::FieldType;
-use crate::schema::{Field, Schema};
+use crate::schema::{Field, Schema, SchemaTrait};
 use crate::store::StoreWriter;
 use crate::termdict::TermMerger;
 use crate::termdict::TermOrdinal;

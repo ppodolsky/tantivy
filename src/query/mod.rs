@@ -61,7 +61,7 @@ pub use tantivy_query_grammar::Occur;
 #[cfg(test)]
 mod tests {
     use crate::query::QueryParser;
-    use crate::schema::{Schema, TEXT};
+    use crate::schema::{Schema, SchemaTrait, TEXT};
     use crate::Index;
     use crate::Term;
     use std::collections::BTreeSet;

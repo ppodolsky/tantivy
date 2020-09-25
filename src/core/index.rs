@@ -18,7 +18,7 @@ use crate::reader::IndexReader;
 use crate::reader::IndexReaderBuilder;
 use crate::schema::Field;
 use crate::schema::FieldType;
-use crate::schema::{DocumentTrait, Schema};
+use crate::schema::{DocumentTrait, Schema, SchemaTrait};
 use crate::tokenizer::{TextAnalyzer, TokenizerManager};
 use crate::IndexWriter;
 use std::borrow::BorrowMut;
@@ -398,7 +398,7 @@ impl fmt::Debug for Index {
 mod tests {
     use crate::directory::RAMDirectory;
     use crate::schema::Field;
-    use crate::schema::{DocumentTrait, Schema, INDEXED, TEXT};
+    use crate::schema::{DocumentTrait, Schema, SchemaTrait, INDEXED, TEXT};
     use crate::IndexReader;
     use crate::ReloadPolicy;
     use crate::{Directory, Index};

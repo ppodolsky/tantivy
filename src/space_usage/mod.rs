@@ -295,7 +295,7 @@ impl FieldUsage {
 mod test {
     use crate::core::Index;
     use crate::schema::Field;
-    use crate::schema::{Document, DocumentTrait, Schema};
+    use crate::schema::{Document, DocumentTrait, Schema, SchemaTrait};
     use crate::schema::{FAST, INDEXED, STORED, TEXT};
     use crate::space_usage::ByteCount;
     use crate::space_usage::PerFieldSpaceUsage;

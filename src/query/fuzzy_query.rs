@@ -165,7 +165,7 @@ mod test {
     use super::FuzzyTermQuery;
     use crate::assert_nearly_equals;
     use crate::collector::TopDocs;
-    use crate::schema::{DocumentTrait, Schema};
+    use crate::schema::{DocumentTrait, Schema, SchemaTrait};
     use crate::schema::TEXT;
     use crate::Index;
     use crate::Term;

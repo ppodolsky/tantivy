@@ -247,7 +247,7 @@ mod tests {
     use crate::collector::{Count, TopDocs};
     use crate::query::TermQuery;
     use crate::schema::IndexRecordOption;
-    use crate::schema::{DocumentTrait, Schema, TEXT};
+    use crate::schema::{DocumentTrait, Schema, SchemaTrait, TEXT};
     use crate::Index;
     use crate::Term;
 

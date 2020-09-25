@@ -2,7 +2,7 @@ use crate::common::CompositeFile;
 use crate::fastfield::BytesFastFieldReader;
 use crate::fastfield::MultiValueIntFastFieldReader;
 use crate::fastfield::{FastFieldNotAvailableError, FastFieldReader};
-use crate::schema::{Cardinality, Field, FieldType, Schema};
+use crate::schema::{Cardinality, Field, FieldType, Schema, SchemaTrait};
 use crate::space_usage::PerFieldSpaceUsage;
 use std::collections::HashMap;
 

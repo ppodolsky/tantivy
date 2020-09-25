@@ -360,7 +360,7 @@ mod tests {
     use crate::postings::postings::Postings;
     use crate::postings::SegmentPostings;
     use crate::schema::IndexRecordOption;
-    use crate::schema::{DocumentTrait, Schema};
+    use crate::schema::{DocumentTrait, Schema, SchemaTrait};
     use crate::schema::Term;
     use crate::schema::INDEXED;
     use crate::DocId;

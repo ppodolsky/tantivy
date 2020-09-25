@@ -6,7 +6,7 @@ use crate::directory::error::{OpenReadError, OpenWriteError};
 use crate::directory::Directory;
 use crate::directory::{ReadOnlySource, WritePtr};
 use crate::indexer::segment_serializer::SegmentSerializer;
-use crate::schema::Schema;
+use crate::schema::{Schema, SchemaTrait};
 use crate::Opstamp;
 use std::fmt;
 use std::path::PathBuf;
